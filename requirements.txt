@@ -1,0 +1,13 @@
+asgiref==3.2.7
+certifi==2020.4.5.1
+cffi==1.14.0
+cryptography==2.9.2
+Django==3.0.3
+idna==2.9
+olefile==0.46
+Pillow==7.1.2
+pycparser==2.20
+PyJWT==1.7.1
+pytz==2020.1
+six==1.15.0
+sqlparse==0.3.1
