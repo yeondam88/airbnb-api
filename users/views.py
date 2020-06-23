@@ -10,8 +10,19 @@ from rest_framework.permissions import IsAdminUser, AllowAny, IsAuthenticated
 from rooms.models import Room
 from rooms.serializers import RoomSerializer
 from .models import User
-from .serializers import ReadUserSerializer, WriteUserSerializer
+from .serializers import UserSerializer
 from .permissions import IsSelf
+
+
+class UsersView(APIView):
+
+    def post(self, request):
+        serializer = UserSerializer(data=request.data)
+        if serializer.is_valid():
+            new_user = serializer.save()
+            return Response(UserSerializer(new_user).data)
+        else:
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 class MeView(APIView):
@@ -19,10 +30,10 @@ class MeView(APIView):
     permission_classes = [IsAuthenticated]
 
     def get(self, request):
-        return Response(ReadUserSerializer(request.user).data)
+        return Response(UserSerializer(request.user).data)
 
     def put(self, request):
-        serializer = WriteUserSerializer(
+        serializer = UserSerializer(
             request.user, data=request.data, partial=True)
 
         if serializer.is_valid():
@@ -38,7 +49,7 @@ def user_detail(request, pk):
 
     try:
         user = User.objects.get(pk=pk)
-        return Response(ReadUserSerializer(user).data)
+        return Response(UserSerializer(user).data)
     except User.DoesNotExist:
         return Response(status=status.HTTP_404_NOT_FOUND)
 
@@ -67,3 +78,20 @@ class FavsView(APIView):
                 return Response(status=status.HTTP_404_NOT_FOUND)
         else:
             return Response(status=status.HTTP_400_BAD_REQUEST)
+
+
+@api_view(["POST"])
+def login(request):
+    username = request.data.get('username')
+    password = request.data.get('password')
+
+    if not username or not password:
+        return Response(status=status.HTTP_400_BAD_REQUEST)
+    user = authenticate(username=username, password=password)
+
+    if user is not None:
+        encode_jwt = jwt.encode(
+            {'pk': user.id}, settings.SECRET_KEY, algorithm="HS256")
+        return Response(data={'token': encode_jwt})
+    else:
+        return Response(status=status.HTTP_401_UNAUTHORIZED)

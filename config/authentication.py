@@ -10,8 +10,9 @@ class JWTAuthentication(authentication.BaseAuthentication):
             token = request.META.get("HTTP_AUTHORIZATION")
             if token is None:
                 return None
-            xjwt, jwt_token = token.split(" ")
-            decoded = jwt.decode(jwt_token, settings.SECRET_KEY, algorithms=["HS256"])
+            bearer, jwt_token = token.split(" ")
+            decoded = jwt.decode(
+                jwt_token, settings.SECRET_KEY, algorithms=["HS256"])
             pk = decoded.get("pk")
             user = User.objects.get(pk=pk)
             return (user, None)
