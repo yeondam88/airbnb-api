@@ -2,7 +2,7 @@ from rest_framework import serializers
 from .models import User
 
 
-class UserSerializer(serializers.ModelSerializer):
+class RelatedUserSerializer(serializers.ModelSerializer):
 
     password = serializers.CharField(write_only=True)
 
@@ -29,3 +29,34 @@ class UserSerializer(serializers.ModelSerializer):
         user.set_password(password)
         user.save()
         return user
+
+
+class ReadUserSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = User
+        exclude = (
+            "groups",
+            "user_permissions",
+            "password",
+            "last_login",
+            "is_superuser",
+            "is_staff",
+            "is_active",
+            "date_joined",
+            "fav",
+        )
+
+
+class WriteUserSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = User
+        fields = (
+            "username",
+            "first_name",
+            "last_name"
+        )
+
+    def validate_first_name(self, value):
+        return value.upper()
