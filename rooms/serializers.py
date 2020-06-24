@@ -5,7 +5,16 @@ from .models import Room, Photo
 
 class RoomSerializer(serializers.ModelSerializer):
 
-    user = RelatedUserSerializer()
+    user = RelatedUserSerializer(read_only=True)
+    is_fav = serializers.SerializerMethodField()
+
+    def get_is_fav(self, obj):
+        request = self.context.get('request')
+        if request:
+            user = request.user
+            if user.is_authenticated:
+                return obj in user.favs.all()
+        return False
 
     class Meta:
         model = Room
