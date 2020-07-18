@@ -20,7 +20,7 @@ class UsersView(APIView):
         serializer = UserSerializer(data=request.data)
         if serializer.is_valid():
             new_user = serializer.save()
-            return Response(UserSerializer(new_user).data)
+            return Response(UserSerializer(new_user).data, status=status.HTTP_201_CREATED)
         else:
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
