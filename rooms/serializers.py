@@ -3,10 +3,18 @@ from users.serializers import RelatedUserSerializer
 from .models import Room, Photo
 
 
+class PhotoSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Photo
+        exclude = ("room", )
+
+
 class RoomSerializer(serializers.ModelSerializer):
 
     user = RelatedUserSerializer(read_only=True)
     is_fav = serializers.SerializerMethodField()
+    photos = PhotoSerializer(read_only=True, many=True)
 
     def get_is_fav(self, obj):
         request = self.context.get('request')
